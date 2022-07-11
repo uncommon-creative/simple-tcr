@@ -1,4 +1,4 @@
-pragma solidity ^0.5.8;
+pragma solidity ^0.8.15;
 
 // import "../node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
@@ -76,7 +76,7 @@ contract Token is StandardToken {
     string public name = "GUILDS Test Token";  //fancy name: eg Simon Bucks
     uint8 public decimals=4;        //How many decimals to show. ie. There could 1000 base units with 3 decimals. Meaning 0.980 SBX = 980 base units. It's like comparing 1 wei to 1 ether.
     string public symbol="TGLD";     //An identifier: eg SBX
-    constructor(uint256 supply) public {
+    constructor(uint256 supply)  {
         totalSupply = supply;
         balances[msg.sender] = totalSupply;
     }

@@ -18,7 +18,7 @@ module.exports = {
   // to customize your Truffle configuration!
   networks: {
     goerli: {
-      provider: () => new HDWalletProvider("", "https://goerli.infura.io/v3/" + "INFURA API KEY"),
+      provider: () => new HDWalletProvider("cry member tail equip antenna chunk time penalty world good decline offer", "https://goerli.infura.io/v3/" + "INFURA_API_KEY"),
       network_id: 5,     // Goerli's id
       gas: 7500000,
     },
@@ -30,7 +30,7 @@ module.exports = {
   },
   compilers: {
     solc: {
-      version: "0.5.8"
+      version: "0.8.15"
     }
   }
 };

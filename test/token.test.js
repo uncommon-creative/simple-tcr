@@ -8,12 +8,12 @@ contract('Token', async function (accounts) {
 
     it("should init", async function () {
         const name = await tokenInstance.name();
-        assert.equal(name, "DemoToken", "name didnt initialize");
+        assert.equal(name, "GUILDS Test Token", "name didnt initialize");
     });
 
     it("should get total supply", async function () {
         const totalSupply = await tokenInstance.totalSupply();
-        assert.equal(totalSupply, 21000000, "couldn't get total supply");
+        assert.equal(totalSupply, 10000000000, "couldn't get total supply");
     });
 
     it("should approve", async function () {

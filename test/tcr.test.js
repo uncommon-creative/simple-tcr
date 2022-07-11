@@ -39,7 +39,7 @@ contract('Tcr', async function (accounts) {
 
     it("should init token", async function () {
         const name = await tokenInstance.name();
-        assert.equal(name, "DemoToken", "token name didnt initialize");
+        assert.equal(name, "GUILDS Test Token", "token name didnt initialize");
     });
 
     it("should init minDeposit", async function () {
@@ -128,7 +128,7 @@ contract('Tcr', async function (accounts) {
     it("should get listing details", async function () {
         const listingDetails = await tcrInstance.getListingDetails(web3.utils.fromAscii(listingName));
         challengeId = listingDetails[3].toNumber();
-        assert.equal(listingDetails[4], listingName, "listing details don't match");
+        assert.equal(listingDetails[5], listingName, "listing details don't match");
     });
 
     it("should claim rewards for winner", async function () {
