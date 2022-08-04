@@ -64,7 +64,7 @@ contract Tcr {
     uint256 public minDeposit;
     uint256 public applyStageLen;
     uint256 public commitStageLen;
-
+    string public description;
     uint256 private constant INITIAL_POLL_NONCE = 0;
     uint256 public pollNonce;
 
@@ -90,6 +90,10 @@ contract Tcr {
         uint256 challengeId,
         address indexed resolver
     );
+    event _UpdateStatus(
+        bytes32 indexed listingHash,
+        address indexed updater
+    );
     event _RewardClaimed(
         uint256 indexed challengeId,
         uint256 reward,
@@ -100,6 +104,7 @@ contract Tcr {
     // again, to keep it simple, skipping the Parameterizer and ParameterizerFactory
     constructor(
         string memory _name,
+        string memory _description,
         address _token,
         uint256[] memory _parameters
     ) {
@@ -117,8 +122,22 @@ contract Tcr {
         // length of commit period for voting
         commitStageLen = _parameters[2];
 
+        description = _description;
+        
         // Initialize the poll nonce
         pollNonce = INITIAL_POLL_NONCE;
+    }
+
+    function getChallenge(uint256 _challengeId) public view returns (Challenge memory){
+        return challenges[_challengeId];
+    }
+    function getPoll(uint256 _challengeId) public view returns (uint256 votesFor,uint256 votesAgainst,uint256 commitEndDate,bool passed){
+        return (
+            polls[_challengeId].votesFor,
+            polls[_challengeId].votesAgainst,
+            polls[_challengeId].commitEndDate,
+            polls[_challengeId].passed
+            );
     }
 
     // returns whether a listing is already whitelisted
@@ -158,7 +177,8 @@ contract Tcr {
             address,
             uint256,
             uint256,
-            uint256
+            uint256,
+            string memory
         )
     {
         string memory _name = name;
@@ -167,7 +187,8 @@ contract Tcr {
             address(token),
             minDeposit,
             applyStageLen,
-            commitStageLen
+            commitStageLen,
+            description
         );
     }
 
@@ -386,6 +407,7 @@ contract Tcr {
     function updateStatus(bytes32 _listingHash) public {
         if (canBeWhitelisted(_listingHash)) {
             listings[_listingHash].whitelisted = true;
+            emit _UpdateStatus(_listingHash, msg.sender);
         } else {
             resolveChallenge(_listingHash);
         }
