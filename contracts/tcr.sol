@@ -178,7 +178,8 @@ contract Tcr {
             uint256,
             uint256,
             uint256,
-            string memory
+            string memory,
+            uint256
         )
     {
         string memory _name = name;
@@ -188,7 +189,8 @@ contract Tcr {
             minDeposit,
             applyStageLen,
             commitStageLen,
-            description
+            description,
+            pollNonce
         );
     }
 
@@ -479,7 +481,26 @@ contract Tcr {
 
         emit _ResolveChallenge(_listingHash, challengeId, msg.sender);
     }
+    function canClaim(uint256 _challengeId) public view returns (bool){
+        // check if challenge is resolved
+        if(challenges[_challengeId].resolved == false){
+            return false;
+        }
 
+        Poll storage poll = polls[_challengeId];
+        Vote storage voteInstance = poll.votes[msg.sender];
+
+        // check if vote reward is already claimed
+        if(voteInstance.claimed == true){
+            return false;
+        }
+        // check if winning party
+        if ((poll.passed && !voteInstance.value) ||
+            (!poll.passed && voteInstance.value)) {
+            return false;
+        }
+        return true;
+    }
     // claim rewards for a vote
     function claimRewards(uint256 challengeId) public {
         // check if challenge is resolved

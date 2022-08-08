@@ -34,7 +34,7 @@ contract('Tcr', async function (accounts) {
 
     it("should init name", async function () {
         const name = await tcrInstance.name();
-        assert.equal(name, "DemoTcr", "name didnt initialize");
+        assert.equal(name, "Demo Guild", "Testing environment for the guild application, everyone is well accepted as applicant");
     });
 
     it("should init token", async function () {
@@ -95,6 +95,7 @@ contract('Tcr', async function (accounts) {
     });
 
     it("should vote", async function () {
+
         await tokenInstance.transfer(accounts[2], 100000, {
             from: accounts[0]
         });
@@ -132,20 +133,25 @@ contract('Tcr', async function (accounts) {
     });
 
     it("should claim rewards for winner", async function () {
+        const balanceAcc2_before = await tokenInstance.balanceOf(accounts[2]);
         const claimRewards = await tcrInstance.claimRewards(challengeId, {
             from: accounts[2]
         });
         assert.equal(claimRewards.logs[0].event, "_RewardClaimed", "claim rewards failed");
 
-        const balanceAcc2 = await tokenInstance.balanceOf(accounts[2]);
-        assert.isAbove(balanceAcc2.toNumber(), 100000, "winning voter should have more balance than before");
+        const balanceAcc2_after = await tokenInstance.balanceOf(accounts[2]);
+
+        assert.isAbove(balanceAcc2_after.toNumber(), balanceAcc2_before.toNumber(), "winning voter should have more balance than before");
     });
 
     it("should claim rewards for loser", async function () {
+        const balanceAcc1_before = await tokenInstance.balanceOf(accounts[1]);
+
         await tcrInstance.claimRewards(challengeId, {
             from: accounts[1]
         });
-        const balanceAcc1 = await tokenInstance.balanceOf(accounts[1]);
-        assert.isBelow(balanceAcc1.toNumber(), 100000, "losing voter should have less balance than before");
+        const balanceAcc1_after = await tokenInstance.balanceOf(accounts[1]);
+        // The loser balance got subtracted during the vote
+        assert.equal(balanceAcc1_after.toNumber(), balanceAcc1_before.toNumber(), "losing voter should have the same amount of balance");
     });
 });
