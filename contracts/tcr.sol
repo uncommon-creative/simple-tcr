@@ -139,7 +139,7 @@ contract Tcr {
             polls[_challengeId].passed
             );
     }
-
+    
     // returns whether a listing is already whitelisted
     function isWhitelisted(bytes32 _listingHash)
         public
@@ -490,8 +490,8 @@ contract Tcr {
         Poll storage poll = polls[_challengeId];
         Vote storage voteInstance = poll.votes[msg.sender];
 
-        // check if vote reward is already claimed
-        if(voteInstance.claimed == true){
+        // check if vote doesn't exist(no stake) or if reward is already claimed
+        if(!(voteInstance.stake > 0 ) || voteInstance.claimed == true){
             return false;
         }
         // check if winning party
@@ -516,6 +516,10 @@ contract Tcr {
         require(
             voteInstance.claimed == false,
             "Vote reward is already claimed."
+        );
+        require(
+            voteInstance.stake > 0,
+            "No vote staked from this address"
         );
 
         // if winning party, calculate reward and transfer
