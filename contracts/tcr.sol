@@ -64,7 +64,7 @@ contract Tcr {
     uint256 public minDeposit;
     uint256 public applyStageLen;
     uint256 public commitStageLen;
-
+    string public description;
     uint256 private constant INITIAL_POLL_NONCE = 0;
     uint256 public pollNonce;
 
@@ -90,6 +90,10 @@ contract Tcr {
         uint256 challengeId,
         address indexed resolver
     );
+    event _UpdateStatus(
+        bytes32 indexed listingHash,
+        address indexed updater
+    );
     event _RewardClaimed(
         uint256 indexed challengeId,
         uint256 reward,
@@ -100,6 +104,7 @@ contract Tcr {
     // again, to keep it simple, skipping the Parameterizer and ParameterizerFactory
     constructor(
         string memory _name,
+        string memory _description,
         address _token,
         uint256[] memory _parameters
     ) {
@@ -117,10 +122,24 @@ contract Tcr {
         // length of commit period for voting
         commitStageLen = _parameters[2];
 
+        description = _description;
+        
         // Initialize the poll nonce
         pollNonce = INITIAL_POLL_NONCE;
     }
 
+    function getChallenge(uint256 _challengeId) public view returns (Challenge memory){
+        return challenges[_challengeId];
+    }
+    function getPoll(uint256 _challengeId) public view returns (uint256 votesFor,uint256 votesAgainst,uint256 commitEndDate,bool passed){
+        return (
+            polls[_challengeId].votesFor,
+            polls[_challengeId].votesAgainst,
+            polls[_challengeId].commitEndDate,
+            polls[_challengeId].passed
+            );
+    }
+    
     // returns whether a listing is already whitelisted
     function isWhitelisted(bytes32 _listingHash)
         public
@@ -158,6 +177,8 @@ contract Tcr {
             address,
             uint256,
             uint256,
+            uint256,
+            string memory,
             uint256
         )
     {
@@ -167,7 +188,9 @@ contract Tcr {
             address(token),
             minDeposit,
             applyStageLen,
-            commitStageLen
+            commitStageLen,
+            description,
+            pollNonce
         );
     }
 
@@ -386,6 +409,7 @@ contract Tcr {
     function updateStatus(bytes32 _listingHash) public {
         if (canBeWhitelisted(_listingHash)) {
             listings[_listingHash].whitelisted = true;
+            emit _UpdateStatus(_listingHash, msg.sender);
         } else {
             resolveChallenge(_listingHash);
         }
@@ -457,7 +481,26 @@ contract Tcr {
 
         emit _ResolveChallenge(_listingHash, challengeId, msg.sender);
     }
+    function canClaim(uint256 _challengeId) public view returns (bool){
+        // check if challenge is resolved
+        if(challenges[_challengeId].resolved == false){
+            return false;
+        }
 
+        Poll storage poll = polls[_challengeId];
+        Vote storage voteInstance = poll.votes[msg.sender];
+
+        // check if vote doesn't exist(no stake) or if reward is already claimed
+        if(!(voteInstance.stake > 0 ) || voteInstance.claimed == true){
+            return false;
+        }
+        // check if winning party
+        if ((poll.passed && !voteInstance.value) ||
+            (!poll.passed && voteInstance.value)) {
+            return false;
+        }
+        return true;
+    }
     // claim rewards for a vote
     function claimRewards(uint256 challengeId) public {
         // check if challenge is resolved
@@ -473,6 +516,10 @@ contract Tcr {
         require(
             voteInstance.claimed == false,
             "Vote reward is already claimed."
+        );
+        require(
+            voteInstance.stake > 0,
+            "No vote staked from this address"
         );
 
         // if winning party, calculate reward and transfer
