@@ -18,6 +18,12 @@ contract Reactions{
     //maps 1 artist to N fans
     mapping (address => address[]) public fans;
 
+
+
+    function noOfReactions(address artist) public view returns(uint){
+        return reactions[artist].length;
+    }
+
     function isFanOf(address fan, address artist) public view returns(bool){
         for(uint k=0; k<fans[artist].length; k++){
             if(fans[artist][k] == fan) return true;

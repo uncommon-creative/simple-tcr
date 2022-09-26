@@ -9,7 +9,7 @@ const Emotion={
 
 contract('Reactions', async function (accounts) {
     let reactions;
-    let [fan1,fan2,artist1,artist2] = accounts;
+    let [fan1,fan2,fan3,artist1,artist2] = accounts;
 
     before(async () => {
         reactions = await reactionsContract.new();
@@ -36,6 +36,17 @@ contract('Reactions', async function (accounts) {
         await reactions.addReaction(artist1,Emotion.emotion_2, {from: fan2});
         let r = await reactions.reactions(artist1,1);
         assert.equal(r,Emotion.emotion_2);
-        
     });       
+
+    it("artist no of upvotes is now two", async function () {
+       
+        let N = await reactions.noOfReactions(artist1);
+        assert.equal(N,2);
+
+        await reactions.addReaction(artist1,Emotion.emotion_2, {from: fan3});
+        N = await reactions.noOfReactions(artist1);
+        assert.equal(N,3);
+    });       
+
+
 });
