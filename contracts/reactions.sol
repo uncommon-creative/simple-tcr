@@ -6,6 +6,9 @@ pragma solidity ^0.8.15;
 // Atm, these emotions are target to the music artists
 contract Reactions{
 
+
+    //MEMBERS
+    
     enum Emotion{
         emotion_1,
         emotion_2,
@@ -19,6 +22,10 @@ contract Reactions{
     mapping (address => address[]) public fans;
 
 
+    //EVENTS
+    event ReactionAdded(address, address, Emotion);
+
+    //VIEWS 
 
     function noOfReactions(address artist) public view returns(uint){
         return reactions[artist].length;
@@ -31,12 +38,14 @@ contract Reactions{
         return false;
     }
 
+    //TRANSACTIONS
 
     function addReaction(address _artist, Emotion _em) public{
         // cant' vote twice
         require(!isFanOf(msg.sender, _artist),"can't upvote twice");
         reactions[_artist].push(_em);
         fans[_artist].push(msg.sender);
+        emit ReactionAdded(_artist, msg.sender, _em);
     }
 
 
