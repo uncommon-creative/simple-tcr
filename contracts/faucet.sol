@@ -14,6 +14,6 @@ contract ERC20Faucet{
 
     receive () external payable {
         require(msg.value==0,"Thanks but no, send zero ether please");
-        token.transfer(msg.sender, 1000000);
+        token.transfer(msg.sender, 1000000);//here assuming 100 units, 4 decimal digits
     }
 }

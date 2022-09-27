@@ -8,13 +8,20 @@ contract Reactions{
 
 
     //MEMBERS
-    
+
+    // there is no need of this enum other than making code more readable
+    // in alternative, integers can just do the work.
     enum Emotion{
         emotion_1,
         emotion_2,
         emotion_3,
-        emotion_4
+        emotion_4,
+        emotion_5,
+        emotion_6,
+        emotion_7,
+        emotion_8
     }
+
     //maps 1 artist to N reactions
     mapping (address => Emotion[]) public reactions;
 
@@ -30,6 +37,8 @@ contract Reactions{
     function noOfReactions(address artist) public view returns(uint){
         return reactions[artist].length;
     }
+
+
 
     function isFanOf(address fan, address artist) public view returns(bool){
         for(uint k=0; k<fans[artist].length; k++){
